@@ -1,0 +1,9 @@
+{
+  "appId": "com.circuitcraft.ai",
+  "appName": "CircuitCraft AI Pro",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}

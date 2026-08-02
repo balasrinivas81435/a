@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CircuitCraft AI Pro - Electronic CAD, Real-Time Waveform Simulator & AI Workbench</title>
+    <meta name="description"
+        content="Interactive Electronic CAD Engine, AI Circuit Synthesizer, Image OCR Scanner, Code Generator, Live Oscilloscope, Bode Plotter, Logic Analyzer & Multi-Domain Simulator.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- TOP HEADER BAR / DASHBOARD -->
+        <header class="app-header">
+            <div class="header-left">
+                <button id="btn-toggle-sidebar" class="icon-nav-btn" title="Toggle Sidebar Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="logo-group">
+                    <div class="logo-icon">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>CircuitCraft <span class="ai-badge">AI PRO 2.0</span></h1>
+                        <span class="subtitle">Electronic CAD, Multi-Domain Simulator & AI Suite</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOP TOOLBAR -->
+            <div class="top-toolbar">
+                <div class="tool-group">
+                    <button id="btn-select" class="tool-btn active" title="Select / Move Components (V)"><i
+                            class="fa-solid fa-mouse-pointer"></i> Select</button>
+                    <button id="btn-wire" class="tool-btn" title="Wire Node Connection (W)"><i
+                            class="fa-solid fa-route"></i> Wire</button>
+                    <button id="btn-probe-v" class="tool-btn" title="Place Voltage Probe (P)"><i
+                            class="fa-solid fa-wave-square"></i> Probe</button>
+                    <button id="btn-rotate" class="tool-btn" title="Rotate Selected Component (R)"><i
+                            class="fa-solid fa-rotate-right"></i> Rotate</button>
+                    <button id="btn-delete" class="tool-btn danger" title="Delete Selected (Del)"><i
+                            class="fa-solid fa-trash-can"></i> Delete</button>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- UNDO / REDO GROUP -->
+                <div class="tool-group">
+                    <button id="btn-undo" class="tool-btn" title="Undo (Ctrl+Z)"><i class="fa-solid fa-rotate-left"></i>
+                        Undo</button>
+                    <button id="btn-redo" class="tool-btn" title="Redo (Ctrl+Y)"><i
+                            class="fa-solid fa-rotate-right"></i>
+                        Redo</button>
+                    <button id="btn-clear" class="tool-btn" title="Clear Workspace Canvas"><i
+                            class="fa-solid fa-eraser"></i> Clear</button>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="tool-group">
+                    <button id="btn-run" class="action-btn success"><i class="fa-solid fa-play"></i> Simulate</button>
+                    <button id="btn-ai-assistant-main" class="action-btn ai-gradient"
+                        title="Open AI Studio & Code Generator"><i class="fa-solid fa-wand-magic-sparkles"></i> AI
+                        Assistant</button>
+                    <button id="btn-upload-image" class="action-btn primary" title="Scan Schematic Photo / Camera"><i
+                            class="fa-solid fa-camera-retro"></i> Scan Image</button>
+                    <button id="btn-voice-cmd" class="action-btn voice-btn" title="Voice Commands (Speech API)"><i
+                            class="fa-solid fa-microphone"></i> Voice</button>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- PRESET DROPDOWN -->
+                <div class="preset-selector-group">
+                    <label for="circuit-preset-select"><i class="fa-solid fa-folder-open"></i> Presets:</label>
+                    <select id="circuit-preset-select" class="preset-dropdown">
+                        <option value="rc_filter">RC Low-Pass Filter</option>
+                        <option value="opamp_amp">Non-Inverting Op-Amp Stage</option>
+                        <option value="astable_555">555 Timer High-Freq Clock</option>
+                        <option value="transistor_amp">Common Emitter High-BW BJT</option>
+                        <option value="logic_gates">Digital Logic Decoder (NAND/XOR)</option>
+                        <option value="arduino_blinker">Arduino Microcontroller Blinker</option>
+                        <option value="peaking_bw">Peaking Bandwidth Booster Network</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- RIGHT UTILITIES: PROJECT SAVE/EXPORT, THEME & AUTH -->
+            <div class="header-right">
+                <div class="dropdown-export">
+                    <button id="btn-export-menu" class="icon-nav-btn" title="Export & Save Options">
+                        <i class="fa-solid fa-download"></i> Export
+                    </button>
+                    <div id="export-dropdown-content" class="dropdown-content hidden">
+                        <button id="btn-save-json"><i class="fa-solid fa-file-code"></i> Save Project (.json)</button>
+                        <button id="btn-open-json"><i class="fa-solid fa-folder-open"></i> Open Project (.json)</button>
+                        <input type="file" id="input-open-json" accept=".json" class="hidden-file-input">
+                        <button id="btn-export-png"><i class="fa-solid fa-file-image"></i> Export PNG Schematic</button>
+                        <button id="btn-print-schematic"><i class="fa-solid fa-print"></i> Print Schematic</button>
+                    </div>
+                </div>
+
+                <button id="btn-theme-toggle" class="icon-nav-btn" title="Toggle Light / Dark Mode">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+
+                <button id="btn-user-auth" class="action-btn auth-btn" title="User Login & Cloud Sync">
+                    <i class="fa-solid fa-user-gear"></i> <span id="user-btn-text">Login</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN WORKBENCH LAYOUT -->
+        <main class="workbench-layout">
+            <!-- LEFT SIDEBAR: COMPONENT LIBRARY & PALETTE -->
+            <aside class="sidebar-left" id="sidebar-left">
+                <div class="sidebar-header">
+                    <h3><i class="fa-solid fa-cubes"></i> Component Library</h3>
+                    <span class="comp-count-badge" id="comp-count-badge">36 Items</span>
+                </div>
+
+                <div class="component-search-box">
+                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    <input type="text" id="component-search-input"
+                        placeholder="Search components (e.g., OpAmp, 555, Arduino, MOSFET)...">
+                    <button id="btn-clear-search" class="clear-search-btn" title="Clear Search"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <!-- CATEGORY FILTER CHIPS -->
+                <div class="category-chips" id="category-chips">
+                    <button class="chip-btn active" data-cat="all">All</button>
+                    <button class="chip-btn" data-cat="Passives">Passives</button>
+                    <button class="chip-btn" data-cat="Semiconductors">Semiconductors</button>
+                    <button class="chip-btn" data-cat="ICs & Logic">ICs & Logic</button>
+                    <button class="chip-btn" data-cat="Microcontrollers">MCU / Dev</button>
+                    <button class="chip-btn" data-cat="Sensors & Actuators">Sensors/Outputs</button>
+                </div>
+
+                <!-- AI SYNTHESIZE QUICK BOX -->
+                <div class="ai-component-box">
+                    <div class="ai-component-info">
+                        <span><i class="fa-solid fa-wand-magic-sparkles"></i> Can't find a component?</span>
+                        <p>Synthesize specialized ICs, sensors, or modules with AI!</p>
+                    </div>
+                    <div class="ai-input-group">
+                        <input type="text" id="ai-custom-component-input"
+                            placeholder="e.g., AD8307, Photodiode, OLED 128x64...">
+                        <button id="btn-ai-generate-comp" class="ai-gen-btn"><i class="fa-solid fa-bolt"></i>
+                            Gen</button>
+                    </div>
+                </div>
+
+                <!-- CATEGORIZED COMPONENT PALETTE CONTAINER -->
+                <div class="component-categories" id="component-palette">
+                    <!-- Dynamically generated by script.js -->
+                </div>
+            </aside>
+
+            <!-- CENTER WORKSPACE: INTERACTIVE CANVAS VIEWPORT -->
+            <section class="canvas-viewport">
+                <div class="canvas-top-bar">
+                    <div class="canvas-status">
+                        <span class="status-indicator live" id="status-indicator"></span>
+                        <span id="canvas-status-text">Interactive Simulation Engine: Active</span>
+                        <span class="canvas-coords" id="canvas-coords">X: 0, Y: 0</span>
+                    </div>
+                    <div class="canvas-zoom-controls">
+                        <button id="btn-zoom-in" title="Zoom In (+)"><i class="fa-solid fa-plus"></i></button>
+                        <button id="btn-zoom-reset" title="Reset View (100%)">100%</button>
+                        <button id="btn-zoom-out" title="Zoom Out (-)"><i class="fa-solid fa-minus"></i></button>
+                        <button id="btn-grid-snap" class="active" title="Toggle Grid Snap"><i
+                                class="fa-solid fa-border-top-left"></i> Snap</button>
+                    </div>
+                </div>
+
+                <!-- CANVAS WRAPPER -->
+                <div class="canvas-wrapper" id="canvas-wrapper">
+                    <canvas id="circuitCanvas"></canvas>
+                    <div id="canvas-overlay-msg" class="canvas-overlay-msg hidden">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <span id="canvas-overlay-text">Processing Circuit Analysis...</span>
+                    </div>
+                </div>
+
+                <!-- BOTTOM PANEL: MULTI-DOMAIN SIMULATOR & ANALYSIS SUITE -->
+                <div class="analysis-bottom-panel" id="analysis-panel">
+                    <div class="panel-tab-bar">
+                        <button class="tab-btn active" data-tab="tab-oscilloscope"><i
+                                class="fa-solid fa-wave-square"></i> Oscilloscope</button>
+                        <button class="tab-btn" data-tab="tab-bode"><i class="fa-solid fa-chart-line"></i> Bode Spectrum
+                            Plotter</button>
+                        <button class="tab-btn" data-tab="tab-dc-analysis"><i class="fa-solid fa-bolt"></i> DC Analysis
+                            &
+                            Power</button>
+                        <button class="tab-btn" data-tab="tab-logic"><i class="fa-solid fa-diagram-project"></i> Logic
+                            Analyzer & FFT</button>
+                        <button class="tab-btn" data-tab="tab-optimizer"><i class="fa-solid fa-gauge-high"></i> Speed &
+                            Bandwidth Turbo</button>
+                        <button id="btn-toggle-panel" class="panel-toggle-btn" title="Toggle Panel Height"><i
+                                class="fa-solid fa-chevron-down"></i></button>
+                    </div>
+
+                    <div class="tab-content-container">
+                        <!-- TAB 1: DUAL-CHANNEL OSCILLOSCOPE -->
+                        <div class="tab-content active" id="tab-oscilloscope">
+                            <div class="scope-controls">
+                                <div class="scope-param">
+                                    <label for="scope-time-scale">Time/Div:</label>
+                                    <select id="scope-time-scale">
+                                        <option value="0.000001">1 µs</option>
+                                        <option value="0.00001">10 µs</option>
+                                        <option value="0.0001" selected>100 µs</option>
+                                        <option value="0.001">1 ms</option>
+                                        <option value="0.01">10 ms</option>
+                                    </select>
+                                </div>
+                                <div class="scope-param">
+                                    <label for="scope-volts-scale">Volts/Div:</label>
+                                    <select id="scope-volts-scale">
+                                        <option value="0.1">100 mV</option>
+                                        <option value="0.5">500 mV</option>
+                                        <option value="1.0" selected>1.0 V</option>
+                                        <option value="2.0">2.0 V</option>
+                                        <option value="5.0">5.0 V</option>
+                                    </select>
+                                </div>
+                                <div class="scope-legend">
+                                    <span class="legend-ch input-ch"><i class="fa-solid fa-circle"></i> Input Probe (Ch
+                                        1)</span>
+                                    <span class="legend-ch output-ch"><i class="fa-solid fa-circle"></i> Output Probe
+                                        (Ch 2)</span>
+                                </div>
+                                <div class="scope-stats" id="scope-stats-box">
+                                    <span>Frequency: <strong id="stat-freq">1.0 kHz</strong></span>
+                                    <span>Vpeak: <strong id="stat-vpeak">5.0 V</strong></span>
+                                    <span>Vrms: <strong id="stat-vrms">3.53 V</strong></span>
+                                </div>
+                            </div>
+                            <div class="canvas-display-wrapper">
+                                <canvas id="oscilloscopeCanvas"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: BODE SPECTRUM PLOTTER -->
+                        <div class="tab-content" id="tab-bode">
+                            <div class="bode-controls">
+                                <div class="bode-stat">
+                                    <span>Cutoff (-3dB): <strong id="bode-cutoff-val" class="highlight-cyan">15.92
+                                            kHz</strong></span>
+                                </div>
+                                <div class="bode-stat">
+                                    <span>Active Bandwidth: <strong id="bode-bw-val" class="highlight-green">15.92
+                                            kHz</strong></span>
+                                </div>
+                                <div class="bode-stat">
+                                    <span>Passband Gain: <strong id="bode-gain-val">0.0 dB</strong></span>
+                                </div>
+                                <button id="btn-recompute-bode" class="btn-small"><i class="fa-solid fa-rotate"></i>
+                                    Recalculate Bode Sweep</button>
+                            </div>
+                            <div class="canvas-display-wrapper">
+                                <canvas id="bodeCanvas"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: DC ANALYSIS & POWER CALCULATOR -->
+                        <div class="tab-content" id="tab-dc-analysis">
+                            <div class="dc-analysis-grid">
+                                <div class="dc-card">
+                                    <h4><i class="fa-solid fa-network-wired"></i> Nodal Voltage Calculations</h4>
+                                    <div id="dc-nodes-list" class="dc-list-box">
+                                        <div class="dc-row"><span>Node 1 (Input):</span> <strong>5.00 V</strong></div>
+                                        <div class="dc-row"><span>Node 2 (Out):</span> <strong>3.54 V</strong></div>
+                                        <div class="dc-row"><span>Node 0 (GND):</span> <strong>0.00 V</strong></div>
+                                    </div>
+                                </div>
+                                <div class="dc-card">
+                                    <h4><i class="fa-solid fa-bolt-lightning"></i> Power & Branch Currents</h4>
+                                    <div id="dc-power-list" class="dc-list-box">
+                                        <div class="dc-row"><span>Total Circuit Current ($I_{total}$):</span>
+                                            <strong>1.46 mA</strong></div>
+                                        <div class="dc-row"><span>Total Power Dissipation ($P_{total}$):</span>
+                                            <strong>7.30 mW</strong></div>
+                                        <div class="dc-row"><span>Resistor R1 Power ($I^2 R$):</span> <strong>2.13
+                                                mW</strong></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 4: LOGIC ANALYZER & FFT SPECTRUM -->
+                        <div class="tab-content" id="tab-logic">
+                            <div class="logic-controls">
+                                <span>Digital Logic Timing Channels (0-3.3V) & Spectral Peak Harmonics</span>
+                            </div>
+                            <div class="canvas-display-wrapper">
+                                <canvas id="logicCanvas"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- TAB 5: SPEED & BANDWIDTH TURBO OPTIMIZER -->
+                        <div class="tab-content" id="tab-optimizer">
+                            <div class="turbo-suite-grid">
+                                <div class="turbo-card metrics-card">
+                                    <h4><i class="fa-solid fa-gauge-high"></i> Circuit Dynamics & Speed Metrics</h4>
+                                    <div class="metric-row">
+                                        <span>Time Constant ($\tau$):</span>
+                                        <strong id="metric-tau">10.0 µs</strong>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span>10%-90% Rise Time ($t_r$):</span>
+                                        <strong id="metric-tr">22.0 µs</strong>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span>Slew Rate ($SR$):</span>
+                                        <strong id="metric-slew">0.23 V/µs</strong>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span>Current Bandwidth ($f_{-3dB}$):</span>
+                                        <strong id="metric-bw-current" class="highlight-cyan">15.92 kHz</strong>
+                                    </div>
+                                </div>
+
+                                <div class="turbo-card optimizer-action-card">
+                                    <h4><i class="fa-solid fa-wand-magic-sparkles"></i> One-Click Bandwidth & Speed
+                                        Boosters</h4>
+                                    <div class="booster-buttons">
+                                        <button id="btn-boost-peaking" class="booster-btn">
+                                            <i class="fa-solid fa-bolt"></i>
+                                            <div>
+                                                <strong>Inductive Peaking Network</strong>
+                                                <small>Extends $f_{-3dB}$ bandwidth up to 180% using shunt/series
+                                                    resonance compensation</small>
+                                            </div>
+                                        </button>
+                                        <button id="btn-boost-miller" class="booster-btn">
+                                            <i class="fa-solid fa-shield-halved"></i>
+                                            <div>
+                                                <strong>Cascode Miller Neutralizer</strong>
+                                                <small>Cancels parasitic $C_{gd}$ feedback capacitance to minimize gate
+                                                    charge delay</small>
+                                            </div>
+                                        </button>
+                                        <button id="btn-boost-impedance" class="booster-btn">
+                                            <i class="fa-solid fa-arrows-to-dot"></i>
+                                            <div>
+                                                <strong>50Ω High-Speed Impedance Matcher</strong>
+                                                <small>Eliminates high-frequency signal reflections and maximizes power
+                                                    transfer</small>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="turbo-card comparison-card">
+                                    <h4><i class="fa-solid fa-chart-simple"></i> Optimization Improvement Benchmark</h4>
+                                    <div class="benchmark-progress">
+                                        <label>Bandwidth Boost Multiplier:</label>
+                                        <div class="bar-container">
+                                            <div id="bar-bw-boost" class="bar-fill cyan" style="width: 45%;"></div>
+                                        </div>
+                                        <span id="txt-bw-boost-val">+185% Increase (2.85x)</span>
+                                    </div>
+                                    <div class="benchmark-progress">
+                                        <label>Signal Delay Reduction:</label>
+                                        <div class="bar-container">
+                                            <div id="bar-delay-reduction" class="bar-fill green" style="width: 65%;">
+                                            </div>
+                                        </div>
+                                        <span id="txt-delay-reduction-val">-65% Propagation Delay</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT SIDEBAR: COMPONENT PROPERTIES, THEORY & HARDWARE SPECS -->
+            <aside class="sidebar-right">
+                <div class="sidebar-header">
+                    <h3><i class="fa-solid fa-sliders"></i> Inspector & Physics</h3>
+                </div>
+                <div class="sidebar-scrollable">
+                    <!-- CIRCUIT THEORY SECTION -->
+                    <div class="theory-card">
+                        <div class="theory-title">
+                            <i class="fa-solid fa-graduation-cap"></i> <span id="theory-circuit-title">RC Low-Pass
+                                Filter</span>
+                        </div>
+                        <div class="theory-content" id="theory-circuit-content">
+                            <p><strong>Operating Principles:</strong> Attenuates high frequencies above cutoff while
+                                passing low-frequency signals.</p>
+                            <div class="formula-box">
+                                <span>$$f_c = \frac{1}{2\pi R C}$$</span>
+                                <span>$$\tau = R \times C$$</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SELECTED COMPONENT INSPECTOR & PROPERTIES -->
+                    <div class="inspector-card">
+                        <h4><i class="fa-solid fa-sliders"></i> Component Parameters</h4>
+                        <div id="component-inspector-body">
+                            <p class="no-select-msg"><i class="fa-solid fa-hand-pointer"></i> Click any component on the
+                                canvas to edit parameters & view details.</p>
+                        </div>
+                    </div>
+
+                    <!-- COMPONENT WHY USED & ROLE BREAKDOWN -->
+                    <div class="theory-card component-details-card">
+                        <h4><i class="fa-solid fa-circle-info"></i> Hardware Physics & "Why Used"</h4>
+                        <div id="component-role-body">
+                            <p class="no-select-msg">Select a component to inspect hardware physics, pinouts, and
+                                selection rationale.</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- MODAL 1: SCHEMATIC IMAGE & CAMERA OCR SCANNER -->
+    <div id="modal-image-upload" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-camera-retro"></i> AI Vision & Camera Schematic OCR Scanner</h3>
+                <button class="modal-close-btn" data-close="modal-image-upload"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Upload a photo or schematic image (or capture via live camera). The AI vision scanner detects
+                    standard components, terminal node topologies, and converts them directly into interactive circuits!
+                </p>
+
+                <!-- DROPZONE / CAMERA FEED -->
+                <div class="image-dropzone" id="image-dropzone">
+                    <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                    <p>Drag and drop circuit image here, or <span>browse files</span></p>
+                    <input type="file" id="input-circuit-file" accept="image/*" class="hidden-file-input">
+                </div>
+
+                <div class="camera-trigger-bar">
+                    <button id="btn-trigger-webcam" class="action-btn secondary btn-small"><i
+                            class="fa-solid fa-video"></i> Capture Live Camera Photo</button>
+                    <div id="webcam-preview-container" class="webcam-box hidden">
+                        <video id="webcam-video" autoplay playsinline></video>
+                        <button id="btn-snap-webcam" class="action-btn success btn-small"><i
+                                class="fa-solid fa-camera"></i> Snap Photo</button>
+                    </div>
+                </div>
+
+                <div class="preset-samples-title">
+                    <span>Or test with pre-loaded schematic diagrams:</span>
+                </div>
+                <div class="sample-images-grid">
+                    <button class="sample-img-card" data-sample="rc_filter">
+                        <div class="sample-preview rc-preview">RC Filter</div>
+                        <span>RC Filter schematic</span>
+                    </button>
+                    <button class="sample-img-card" data-sample="opamp_amp">
+                        <div class="sample-preview opamp-preview">OpAmp Stage</div>
+                        <span>Non-Inverting OpAmp</span>
+                    </button>
+                    <button class="sample-img-card" data-sample="transistor_amp">
+                        <div class="sample-preview bjt-preview">BJT High BW</div>
+                        <span>High-Speed BJT Stage</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn secondary" data-close="modal-image-upload">Cancel</button>
+                <button id="btn-process-image-scan" class="action-btn primary"><i class="fa-solid fa-microchip"></i>
+                    Convert to Interactive Circuit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: AI ASSISTANT SUITE (TEXT-TO-CIRCUIT, AUDIT, CODE GENERATOR, TUTOR) -->
+    <div id="modal-ai-suite" class="modal-overlay hidden">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI Engineering Assistant & Code Generator Studio
+                </h3>
+                <button class="modal-close-btn" data-close="modal-ai-suite"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <!-- AI SUITE TAB BAR -->
+                <div class="modal-tab-bar">
+                    <button class="modal-tab-btn active" data-aitab="ai-tab-gen"><i
+                            class="fa-solid fa-diagram-project"></i> Text-to-Circuit</button>
+                    <button class="modal-tab-btn" data-aitab="ai-tab-audit"><i class="fa-solid fa-bug"></i> Circuit
+                        Audit & Errors</button>
+                    <button class="modal-tab-btn" data-aitab="ai-tab-code"><i class="fa-solid fa-code"></i> Code
+                        Generator</button>
+                    <button class="modal-tab-btn" data-aitab="ai-tab-tutor"><i class="fa-solid fa-comments"></i> AI
+                        Electronics Tutor</button>
+                </div>
+
+                <div class="modal-tab-content-container">
+                    <!-- AI TAB 1: TEXT TO CIRCUIT -->
+                    <div class="ai-tab-content active" id="ai-tab-gen">
+                        <div class="ai-prompt-area">
+                            <label for="modal-ai-prompt-input">Describe the circuit you want AI to design:</label>
+                            <input type="text" id="modal-ai-prompt-input"
+                                placeholder="e.g., Design a 555 timer clock generator with 10kHz frequency, or an OpAmp audio buffer...">
+                            <button id="btn-run-ai-builder" class="action-btn ai-gradient" style="margin-top:10px;"><i
+                                    class="fa-solid fa-wand-sparkles"></i> Synthesize Circuit</button>
+                        </div>
+                        <div id="ai-gen-status" class="ai-gen-status hidden">
+                            <i class="fa-solid fa-microchip fa-spin"></i>
+                            <span>AI Engine synthesizing circuit topology, IEEE component pinouts, and
+                                calculations...</span>
+                        </div>
+                        <div id="ai-gen-result" class="ai-gen-result hidden">
+                            <!-- Populated by script.js -->
+                        </div>
+                    </div>
+
+                    <!-- AI TAB 2: AUDIT & ERROR DETECTOR -->
+                    <div class="ai-tab-content" id="ai-tab-audit">
+                        <div class="audit-header">
+                            <h4><i class="fa-solid fa-shield-virus"></i> Real-Time AI Topology & Error Inspector</h4>
+                            <button id="btn-run-circuit-audit" class="action-btn primary btn-small"><i
+                                    class="fa-solid fa-magnifying-glass-chart"></i> Run AI Audit</button>
+                        </div>
+                        <div id="ai-audit-results" class="ai-audit-box">
+                            <p>Click "Run AI Audit" to scan your active circuit for short circuits, missing ground
+                                references, floating inputs, or missing decoupling capacitors.</p>
+                        </div>
+                    </div>
+
+                    <!-- AI TAB 3: CODE GENERATOR (ARDUINO, STM32, MATLAB, VERILOG) -->
+                    <div class="ai-tab-content" id="ai-tab-code">
+                        <div class="code-gen-controls">
+                            <label for="code-target-select">Target Platform / Language:</label>
+                            <select id="code-target-select" class="preset-dropdown">
+                                <option value="arduino">Arduino C++ (Embedded Wire & Pins)</option>
+                                <option value="stm32">STM32 HAL C Code (CubeIDE)</option>
+                                <option value="matlab">MATLAB / Simulink Circuit Script</option>
+                                <option value="verilog">Verilog HDL Hardware Module</option>
+                            </select>
+                            <button id="btn-generate-code" class="action-btn success btn-small"><i
+                                    class="fa-solid fa-code"></i> Generate Code</button>
+                        </div>
+                        <div class="code-output-box">
+                            <pre><code id="code-display-area">// Click "Generate Code" to build embedded source code for your active circuit...</code></pre>
+                            <button id="btn-copy-code" class="copy-btn" title="Copy Code"><i
+                                    class="fa-solid fa-copy"></i> Copy</button>
+                        </div>
+                    </div>
+
+                    <!-- AI TAB 4: ELECTRONICS TUTOR CHAT -->
+                    <div class="ai-tab-content" id="ai-tab-tutor">
+                        <div class="chat-container">
+                            <div id="chat-messages-box" class="chat-messages">
+                                <div class="chat-msg ai-msg">
+                                    <i class="fa-solid fa-robot"></i>
+                                    <div>Hello! I am your AI Electronics Tutor. Ask me anything about components,
+                                        formulas ($V=IR$), impedance matching, or circuit theory!</div>
+                                </div>
+                            </div>
+                            <div class="chat-input-area">
+                                <input type="text" id="chat-user-input"
+                                    placeholder="Ask a question (e.g., How do I choose a transistor bias resistor?)...">
+                                <button id="btn-send-chat" class="action-btn primary"><i
+                                        class="fa-solid fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn secondary" data-close="modal-ai-suite">Close</button>
+                <button id="btn-add-ai-comp-to-canvas" class="action-btn success hidden"><i
+                        class="fa-solid fa-square-plus"></i> Load Synthesized Circuit onto Canvas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: VOICE COMMANDS LISTENER -->
+    <div id="modal-voice" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-microphone"></i> AI Voice Command Assistant</h3>
+                <button class="modal-close-btn" data-close="modal-voice"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="voice-wave-animation">
+                    <i class="fa-solid fa-microphone-lines voice-icon-pulse"></i>
+                </div>
+                <h4 id="voice-status-text">Listening for voice commands...</h4>
+                <p class="voice-hints">Try saying: <em>"Add Resistor"</em>, <em>"Add OpAmp"</em>, <em>"Run
+                        Simulation"</em>, <em>"Clear Canvas"</em>, or <em>"Optimize Bandwidth"</em>.</p>
+                <div id="voice-transcript-box" class="voice-transcript">
+                    <span id="voice-transcript-text">"Listening..."</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn secondary" data-close="modal-voice">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 4: USER AUTHENTICATION & CLOUD SYNC -->
+    <div id="modal-auth" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-gear"></i> CircuitCraft Account & Cloud Projects</h3>
+                <button class="modal-close-btn" data-close="modal-auth"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-auth" onsubmit="return false;">
+                    <div class="prop-field">
+                        <label for="auth-email">Email Address:</label>
+                        <input type="email" id="auth-email" placeholder="engineer@circuitcraft.ai" required>
+                    </div>
+                    <div class="prop-field" style="margin-top:10px;">
+                        <label for="auth-password">Password:</label>
+                        <input type="password" id="auth-password" placeholder="••••••••" required>
+                    </div>
+                    <div class="auth-buttons-group">
+                        <button id="btn-login-submit" class="action-btn primary" style="width:100%;"><i
+                                class="fa-solid fa-right-to-bracket"></i> Log In / Sign Up</button>
+                    </div>
+                </form>
+                <div class="cloud-projects-list">
+                    <h4><i class="fa-solid fa-cloud"></i> Saved Cloud Projects</h4>
+                    <ul class="cloud-list">
+                        <li><i class="fa-solid fa-folder"></i> High-Frequency BJT Amplifier Stage (Cloud Sync)</li>
+                        <li><i class="fa-solid fa-folder"></i> 555 Timer PWM Motor Controller</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn secondary" data-close="modal-auth">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
